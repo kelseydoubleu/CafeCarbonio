@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe Carbonio - Carbon Capital</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background-color: #165B33; color: #0B0B0B; min-height: 100vh; }
+        .container { max-width: 390px; margin: 0 auto; min-height: 100vh; background: #165B33; }
+        .screen { display: none; padding: 20px; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+        .header-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding-top: 20px; }
+        .logo-text { background: #A58CFF; color: #0B0B0B; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 16px; }
+        .carbon-bank { background: rgba(0, 0, 0, 0.3); border-radius: 20px; padding: 12px 20px; text-align: center; color: white; margin-bottom: 20px; }
+        .bank-amount { font-size: 24px; font-weight: 700; }
+        .panel { background: #FF6B00; border-radius: 16px; padding: 24px; margin-bottom: 20px; flex-grow: 1; }
+        .panel h1 { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+        .panel p { font-size: 16px; margin-bottom: 20px; }
+        .btn-primary { background: #0B0B0B; color: white; border: none; padding: 16px 24px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-secondary { background: transparent; color: #0B0B0B; border: 2px solid #0B0B0B; padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .options-grid { display: grid; gap: 16px; margin: 20px 0; }
+        .option-card { background: white; border-radius: 12px; padding: 20px; cursor: pointer; position: relative; }
+        .option-card:hover { transform: translateY(-2px); }
+        .option-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .option-subtitle { font-size: 14px; color: #666; }
+        .option-carbon { position: absolute; top: 16px; right: 16px; background: #22C55E; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .question-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 30px; }
+        .progress-bar { background: rgba(255, 255, 255, 0.2); height: 4px; border-radius: 2px; margin-bottom: 20px; }
+        .progress-fill { background: #A58CFF; height: 100%; border-radius: 2px; }
+        .drinks-grid { display: grid; gap: 16px; margin: 20px 0; }
+        .drink-card { background: white; border-radius: 12px; padding: 20px; cursor: pointer; position: relative; }
+        .drink-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .drink-subtext { font-size: 14px; color: #666; margin-bottom: 12px; }
+        .drink-price { position: absolute; top: 16px; right: 16px; font-weight: 600; }
+        .original-price { color: #999; text-decoration: line-through; font-size: 12px; }
+        .discounted-price { color: #22C55E; font-weight: 700; }
+        .drink-savings { background: #22C55E; color: white; padding: 8px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block; }
+        .receipt { background: white; border-radius: 12px; padding: 24px; margin: 20px 0; font-family: monospace; font-size: 14px; }
+        .receipt pre { white-space: pre-wrap; }
+        .footer-disclaimer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 11, 11, 0.9); color: white; padding: 12px 20px; font-size: 12px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="screen active" id="intro-screen">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="panel">
+                <h1>WELCOME TO CAFE CARBONIO :)</h1>
+                <p>We are partnered with <strong>CARBON CAPITAL</strong>: for each kg of carbon you offset, you receive a <strong>$1 discount</strong> off our menu.</p>
+                <p>Our partnership also means that all the coffee we produce is <strong>carbon negative</strong>. We source responsibly, encourage re-usable mugs and thermos, and re-purpose our used coffee grounds. No carbon emissions whatsoever!</p>
+                <button class="btn-primary" onclick="startQuiz()">Count your carbon (And your discount amount)</button>
+            </div>
+        </div>
+
+        <div class="screen" id="question-1">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR CARBON FOOTPRINT</div>
+                <div class="bank-amount" id="bank-amount">8.00 kg CO2e</div>
+                <div style="font-size: 12px; opacity: 0.8;">(Starting from 8kg daily average)</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 20%"></div></div>
+            <div class="panel">
+                <div class="question-title">How did you get here today?</div>
+                <div class="options-grid">
+                    <div class="option-card" onclick="answerQuestion(1, 'bike', -0.5)">
+                        <div class="option-carbon">-0.5</div>
+                        <div class="option-title">🚴‍♀️ Bike</div>
+                        <div class="option-subtitle">Fresh air, great for the planet</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(1, 'subway', -0.2)">
+                        <div class="option-carbon">-0.2</div>
+                        <div class="option-title">🚇 Subway</div>
+                        <div class="option-subtitle">Shared transit, solid choice</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(1, 'rideshare', 2.0)">
+                        <div class="option-carbon" style="background: #EF4444;">+2.0</div>
+                        <div class="option-title">🚗 Car / Rideshare</div>
+                        <div class="option-subtitle">Convenient but carbon-heavy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="question-2">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR CARBON FOOTPRINT</div>
+                <div class="bank-amount" id="bank-amount-2">8.00 kg CO2e</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
+            <div class="panel">
+                <div class="question-title">How did you start your morning?</div>
+                <div class="options-grid">
+                    <div class="option-card" onclick="answerQuestion(2, 'no-shower', -1.0)">
+                        <div class="option-carbon">-1.0</div>
+                        <div class="option-title">🚫 Skipped shower</div>
+                        <div class="option-subtitle">Sometimes you just gotta run</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(2, 'quick-rinse', -0.3)">
+                        <div class="option-carbon">-0.3</div>
+                        <div class="option-title">💨 Quick rinse</div>
+                        <div class="option-subtitle">2-3 minutes, cold water</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(2, 'hot-shower', 1.5)">
+                        <div class="option-carbon" style="background: #EF4444;">+1.5</div>
+                        <div class="option-title">🔥 Long hot shower</div>
+                        <div class="option-subtitle">15+ minutes of steamy bliss</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="question-3">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR CARBON FOOTPRINT</div>
+                <div class="bank-amount" id="bank-amount-3">8.00 kg CO2e</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div>
+            <div class="panel">
+                <div class="question-title">What did you have for breakfast?</div>
+                <div class="options-grid">
+                    <div class="option-card" onclick="answerQuestion(3, 'nothing', -0.8)">
+                        <div class="option-carbon">-0.8</div>
+                        <div class="option-title">😴 Nothing</div>
+                        <div class="option-subtitle">Running late or intermittent fasting</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(3, 'oatmeal', -0.4)">
+                        <div class="option-carbon">-0.4</div>
+                        <div class="option-title">🥣 Oatmeal/cereal</div>
+                        <div class="option-subtitle">Simple, plant-based start</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(3, 'bacon-eggs', 1.8)">
+                        <div class="option-carbon" style="background: #EF4444;">+1.8</div>
+                        <div class="option-title">🍳 Bacon & eggs</div>
+                        <div class="option-subtitle">Full protein breakfast</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="question-4">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR CARBON FOOTPRINT</div>
+                <div class="bank-amount" id="bank-amount-4">8.00 kg CO2e</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 80%"></div></div>
+            <div class="panel">
+                <div class="question-title">Where did you eat lunch?</div>
+                <div class="options-grid">
+                    <div class="option-card" onclick="answerQuestion(4, 'homemade', -0.7)">
+                        <div class="option-carbon">-0.7</div>
+                        <div class="option-title">🏠 Homemade</div>
+                        <div class="option-subtitle">Brought lunch from home</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(4, 'local-cafe', 0.3)">
+                        <div class="option-carbon" style="background: #EAB308;">+0.3</div>
+                        <div class="option-title">☕ Local cafe</div>
+                        <div class="option-subtitle">Walked to nearby spot</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(4, 'delivery', 2.5)">
+                        <div class="option-carbon" style="background: #EF4444;">+2.5</div>
+                        <div class="option-title">🛵 Food delivery</div>
+                        <div class="option-subtitle">App order delivered to you</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="question-5">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR CARBON FOOTPRINT</div>
+                <div class="bank-amount" id="bank-amount-5">8.00 kg CO2e</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+            <div class="panel">
+                <div class="question-title">What's your evening plan?</div>
+                <div class="options-grid">
+                    <div class="option-card" onclick="answerQuestion(5, 'reading', -0.6)">
+                        <div class="option-carbon">-0.6</div>
+                        <div class="option-title">📚 Reading</div>
+                        <div class="option-subtitle">Book or magazine, low energy</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(5, 'going-out', 0.2)">
+                        <div class="option-carbon" style="background: #EAB308;">+0.2</div>
+                        <div class="option-title">🌃 Going out</div>
+                        <div class="option-subtitle">Meeting friends, walking around</div>
+                    </div>
+                    <div class="option-card" onclick="answerQuestion(5, 'netflix', 1.2)">
+                        <div class="option-carbon" style="background: #EF4444;">+1.2</div>
+                        <div class="option-title">📺 Netflix binge</div>
+                        <div class="option-subtitle">3+ hours of streaming</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="results-screen">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="carbon-bank">
+                <div>YOUR FINAL FOOTPRINT</div>
+                <div class="bank-amount" id="final-bank-amount">8.00 kg CO2e</div>
+                <div style="font-size: 12px; opacity: 0.8;" id="discount-earned">Discount earned: $0.00</div>
+            </div>
+            <div class="panel">
+                <div class="question-title">Your Carbon Footprint Results</div>
+                <p style="text-align: center;">Choose any drink from our <strong>carbon-negative menu</strong>. All items are sustainably sourced with zero emissions!</p>
+            </div>
+            <div class="drinks-grid" id="drinks-container"></div>
+            <button class="btn-secondary" onclick="startQuiz()">◀ Start over</button>
+        </div>
+
+        <div class="screen" id="receipt-screen">
+            <div class="header-logo"><div class="logo-text">CAFE CARBONIO</div></div>
+            <div class="panel"><h1>Carbon Receipt</h1></div>
+            <div class="receipt" id="receipt-content"><pre></pre></div>
+            <button class="btn-primary" onclick="window.print()">Print / Save</button>
+            <button class="btn-secondary" onclick="startQuiz()">Start over</button>
+        </div>
+
+        <div class="footer-disclaimer">This playful tool is a studio prototype. Numbers are estimates; real cafes would use verified ledgers.</div>
+    </div>
+
+<script>
+var appState = { carbonFootprint: 8.0, answers: {} };
+var drinks = [
+    { name: "Americano", subtext: "Single-origin, fair trade", originalPrice: 3.50 },
+    { name: "Oat Latte", subtext: "House-made oat milk, ceramic cup", originalPrice: 4.75 },
+    { name: "Matcha Latte", subtext: "Ceremonial grade, bamboo whisk", originalPrice: 5.25 },
+    { name: "Cold Brew", subtext: "12-hour steep, nitrogen infused", originalPrice: 4.00 }
+];
+
+function showScreen(screenId) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); }
+    document.getElementById(screenId).classList.add('active');
+}
+
+function updateDisplay() {
+    var elements = ['bank-amount', 'bank-amount-2', 'bank-amount-3', 'bank-amount-4', 'bank-amount-5', 'final-bank-amount'];
+    for (var i = 0; i < elements.length; i++) {
+        var el = document.getElementById(elements[i]);
+        if (el) { el.textContent = appState.carbonFootprint.toFixed(2) + ' kg CO2e'; }
+    }
+    var discount = Math.max(0, 8.0 - appState.carbonFootprint);
+    var discountEl = document.getElementById('discount-earned');
+    if (discountEl) { discountEl.textContent = 'Discount earned: $' + discount.toFixed(2); }
+}
+
+function startQuiz() {
+    appState.carbonFootprint = 8.0; appState.answers = {};
+    updateDisplay(); showScreen('question-1');
+}
+
+function answerQuestion(questionNum, choice, carbonAmount) {
+    appState.answers[questionNum] = { choice: choice, carbonAmount: carbonAmount };
+    appState.carbonFootprint += carbonAmount;
+    setTimeout(function() {
+        updateDisplay();
+        if (questionNum < 5) { showScreen('question-' + (questionNum + 1)); }
+        else { showResults(); }
+    }, 500);
+}
+
+function showResults() { updateDisplay(); populateDrinks(); showScreen('results-screen'); }
+
+function populateDrinks() {
+    var container = document.getElementById('drinks-container'); container.innerHTML = '';
+    var discount = Math.max(0, 8.0 - appState.carbonFootprint);
+    for (var i = 0; i < drinks.length; i++) {
+        var drink = drinks[i]; var discountedPrice = Math.max(0, drink.originalPrice - discount); var hasDiscount = discount > 0;
+        var drinkCard = document.createElement('div'); drinkCard.className = 'drink-card';
+        drinkCard.onclick = (function(d) { return function() { selectDrink(d); }; })(drink);
+        var priceHTML = '';
+        if (hasDiscount && discount >= drink.originalPrice) {
+            priceHTML = '<div class="original-price">$' + drink.originalPrice.toFixed(2) + '</div><div class="discounted-price">FREE!</div>';
+        } else if (hasDiscount) {
+            priceHTML = '<div class="original-price">$' + drink.originalPrice.toFixed(2) + '</div><div class="discounted-price">$' + discountedPrice.toFixed(2) + '</div>';
+        } else { priceHTML = '<div>$' + drink.originalPrice.toFixed(2) + '</div>'; }
+        drinkCard.innerHTML = '<div class="drink-price">' + priceHTML + '</div><div class="drink-name">' + drink.name + '</div><div class="drink-subtext">' + drink.subtext + '</div>' + (hasDiscount ? '<div class="drink-savings">Carbon savings discount applied!</div>' : '');
+        container.appendChild(drinkCard);
+    }
+}
+
+function selectDrink(drink) {
+    var discount = Math.max(0, 8.0 - appState.carbonFootprint); var discountedPrice = Math.max(0, drink.originalPrice - discount); var totalDiscount = drink.originalPrice - discountedPrice;
+    var receiptText = 'CAFE CARBONIO\nCarbon Capital Partnership — NYC\n-------------------------\nYOUR DAILY CARBON BREAKDOWN:\n\nStarting baseline: 8.00 kg CO2e\nYour choices: ' + (appState.carbonFootprint - 8.0).toFixed(2) + ' kg\nFinal carbon footprint: ' + appState.carbonFootprint.toFixed(2) + ' kg CO2e\nCarbon savings vs average: ' + discount.toFixed(2) + ' kg\nCarbon Capital discount: $' + discount.toFixed(2) + '\n\nPURCHASE:\n' + drink.name + '\nOriginal price: $' + drink.originalPrice.toFixed(2) + '\nDiscount applied: -$' + totalDiscount.toFixed(2) + '\nFinal price: $' + discountedPrice.toFixed(2) + '\n\n-------------------------\nYou saved: $' + totalDiscount.toFixed(2) + ' with Carbon Capital!\n\nThank you for choosing carbon-negative coffee ☺\n#CarbonCapital #CafeCarbonio';
+    document.querySelector('#receipt-content pre').textContent = receiptText; showScreen('receipt-screen');
+}
+
+updateDisplay();
+</script>
+</body>
+</html>
